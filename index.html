@@ -1195,19 +1195,37 @@
                             <div class="category-divider">Financial</div>
                             <div class="metric-item">
                                 <div class="metric-label">
-                                    Retensi Murid <span class="bobot">30%</span>
+                                    Jumlah Prospek Retensi <span class="tracking">DATA</span>
                                 </div>
-                                <input type="number" class="metric-input" id="retensi-${emp.id}" 
-                                    placeholder="% murid perpanjang" min="0" max="100" step="0.1"
-                                    onchange="calculateScore('${emp.id}')">
-                                <div class="metric-helper">Target: 58%, Cap: 100%</div>
+                                <input type="number" class="metric-input" id="prospekRetensi-${emp.id}" 
+                                    placeholder="Jumlah prospek" min="0"
+                                    onchange="calculateRetensi('${emp.id}')">
+                                <div class="metric-helper">Jumlah murid yang diprospek untuk perpanjang</div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">
-                                    Prospek Perpanjangan <span class="bobot">15%</span>
+                                    Jumlah Closing Retensi <span class="tracking">DATA</span>
+                                </div>
+                                <input type="number" class="metric-input" id="closingRetensi-${emp.id}" 
+                                    placeholder="Jumlah closing" min="0"
+                                    onchange="calculateRetensi('${emp.id}')">
+                                <div class="metric-helper">Jumlah murid yang berhasil perpanjang</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">
+                                    Retensi Murid (%) <span class="bobot">30%</span>
+                                </div>
+                                <input type="text" class="metric-input" id="retensi-${emp.id}" 
+                                    placeholder="Auto-calculate" readonly
+                                    style="background: var(--gray-dark); cursor: not-allowed;">
+                                <div class="metric-helper">Target: 58%, Cap: 100% (Auto dari Closing/Prospek)</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">
+                                    Jumlah Perpanjangan <span class="bobot">15%</span>
                                 </div>
                                 <input type="number" class="metric-input" id="prospek-${emp.id}" 
-                                    placeholder="Jumlah murid di-follow up" min="0"
+                                    placeholder="Jumlah perpanjangan" min="0"
                                     onchange="calculateScore('${emp.id}')">
                                 <div class="metric-helper">Target: Min 10 orang, Cap: 15 orang</div>
                             </div>
@@ -1292,6 +1310,20 @@
                 `;
                 grid.appendChild(card);
             });
+        }
+
+        // Calculate Retensi Percentage
+        function calculateRetensi(empId) {
+            const prospek = parseInt(document.getElementById(`prospekRetensi-${empId}`).value) || 0;
+            const closing = parseInt(document.getElementById(`closingRetensi-${empId}`).value) || 0;
+            
+            let percentage = 0;
+            if (prospek > 0) {
+                percentage = (closing / prospek) * 100;
+            }
+            
+            document.getElementById(`retensi-${empId}`).value = percentage.toFixed(1);
+            calculateScore(empId);
         }
 
         // Calculate Score for Employee
@@ -1579,7 +1611,11 @@
             const feedback = document.getElementById(`feedback-${empId}`).value || 'Tidak ada catatan.';
 
             // Get KPI values
+            const prospekRetensi = document.getElementById(`prospekRetensi-${empId}`).value || '-';
+            const closingRetensi = document.getElementById(`closingRetensi-${empId}`).value || '-';
             const kpiValues = {
+                prospekRetensi: prospekRetensi,
+                closingRetensi: closingRetensi,
                 retensi: document.getElementById(`retensi-${empId}`).value || '-',
                 prospek: document.getElementById(`prospek-${empId}`).value || '-',
                 kepuasan: document.getElementById(`kepuasan-${empId}`).value || '-',
@@ -1641,14 +1677,26 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td rowspan="2">Financial</td>
-                                    <td>Retensi Murid</td>
+                                    <td rowspan="4">Financial</td>
+                                    <td>Jumlah Prospek Retensi</td>
+                                    <td>${kpiValues.prospekRetensi} orang</td>
+                                    <td>-</td>
+                                    <td>Data</td>
+                                </tr>
+                                <tr>
+                                    <td>Jumlah Closing Retensi</td>
+                                    <td>${kpiValues.closingRetensi} orang</td>
+                                    <td>-</td>
+                                    <td>Data</td>
+                                </tr>
+                                <tr>
+                                    <td>Retensi Murid (%)</td>
                                     <td>${kpiValues.retensi}%</td>
                                     <td>58%</td>
                                     <td>30%</td>
                                 </tr>
                                 <tr>
-                                    <td>Prospek Perpanjangan</td>
+                                    <td>Jumlah Perpanjangan</td>
                                     <td>${kpiValues.prospek} orang</td>
                                     <td>Min 10</td>
                                     <td>15%</td>
@@ -1778,9 +1826,18 @@
         function resetAllData() {
             if (confirm('Yakin ingin reset semua data? Tindakan ini tidak dapat dibatalkan.')) {
                 employees.forEach(emp => {
-                    Object.keys(kpiConfig).forEach(key => {
-                        document.getElementById(`${key}-${emp.id}`).value = '';
-                    });
+                    // Reset financial fields
+                    document.getElementById(`prospekRetensi-${emp.id}`).value = '';
+                    document.getElementById(`closingRetensi-${emp.id}`).value = '';
+                    document.getElementById(`retensi-${emp.id}`).value = '';
+                    document.getElementById(`prospek-${emp.id}`).value = '';
+                    // Reset other KPI fields
+                    document.getElementById(`kepuasan-${emp.id}`).value = '';
+                    document.getElementById(`complain-${emp.id}`).value = '';
+                    document.getElementById(`akurasi-${emp.id}`).value = '';
+                    document.getElementById(`bonus-${emp.id}`).value = '';
+                    document.getElementById(`tools-${emp.id}`).value = '';
+                    document.getElementById(`kolaborasi-${emp.id}`).value = '';
                     document.getElementById(`feedback-${emp.id}`).value = '';
                     document.getElementById(`score-${emp.id}`).textContent = '0%';
                 });
