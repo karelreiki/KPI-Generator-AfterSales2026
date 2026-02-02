@@ -433,6 +433,28 @@
             border-top: 1px solid var(--gray-dark);
             display: flex;
             justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-preview-individual {
+            background: transparent;
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-preview-individual:hover {
+            background: var(--gold-primary);
+            color: var(--black-primary);
         }
 
         .btn-download-individual {
@@ -742,6 +764,234 @@
         @media print {
             .no-print { display: none !important; }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--black-card);
+            border: 1px solid var(--gold-primary);
+            border-radius: 12px;
+            max-width: 750px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--gray-dark);
+        }
+
+        .modal-header h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-primary);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray-light);
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--gold-primary);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 25px;
+            border-top: 1px solid var(--gray-dark);
+        }
+
+        /* Individual Preview Card inside Modal */
+        .individual-preview {
+            background: var(--black-primary);
+            border-radius: 10px;
+            padding: 25px;
+        }
+
+        .individual-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-primary);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .individual-preview-employee {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--black-light);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .individual-preview-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--black-primary);
+        }
+
+        .individual-preview-score {
+            margin-left: auto;
+            text-align: center;
+            background: var(--black-primary);
+            border: 2px solid var(--gold-primary);
+            border-radius: 10px;
+            padding: 10px 20px;
+        }
+
+        .individual-preview-score .value {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--gold-primary);
+            font-weight: bold;
+        }
+
+        .individual-preview-score .label {
+            font-size: 9px;
+            color: var(--gray-light);
+            text-transform: uppercase;
+        }
+
+        .individual-preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .individual-preview-table th {
+            background: var(--black-light);
+            color: var(--gold-primary);
+            padding: 12px;
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--gold-primary);
+        }
+
+        .individual-preview-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--gray-dark);
+        }
+
+        .individual-preview-feedback {
+            background: var(--black-light);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--gold-primary);
+            margin-bottom: 20px;
+        }
+
+        .individual-preview-feedback h4 {
+            font-size: 10px;
+            color: var(--gold-primary);
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+        }
+
+        .individual-preview-feedback p {
+            font-size: 12px;
+            color: var(--gray-light);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .individual-preview-grade {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .individual-preview-grade .grade-display {
+            background: var(--black-light);
+            padding: 15px 25px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .individual-preview-grade .grade-display .label {
+            font-size: 10px;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .individual-preview-grade .grade-display .value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .individual-preview-insight {
+            flex: 1;
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            padding: 15px;
+            border-radius: 8px;
+            color: var(--black-primary);
+        }
+
+        .individual-preview-insight h4 {
+            font-size: 10px;
+            text-transform: uppercase;
+            margin: 0 0 5px 0;
+        }
+
+        .individual-preview-insight .author {
+            font-size: 9px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .individual-preview-insight p {
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -942,6 +1192,25 @@
         </section>
     </main>
 
+    <!-- Modal Preview Individual -->
+    <div id="previewModal" class="modal-overlay" onclick="closePreviewModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Preview KPI Individual</h3>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalPreviewContent">
+                <!-- Content generated by JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePreviewModal()">Tutup</button>
+                <button class="btn btn-primary" id="modalDownloadBtn">
+                    <span>📄</span> Download PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer no-print">
         <p>© 2025 <span class="brand-name">Golden English Bekasi</span> - KPI Generator v2.0 | After Sales Team</p>
@@ -1066,6 +1335,9 @@
                         </div>
                     </div>
                     <div class="card-footer">
+                        <button class="btn-preview-individual" onclick="showIndividualPreview('${emp.id}')">
+                            <span>👁️</span> Preview
+                        </button>
                         <button class="btn-download-individual" onclick="exportIndividualPDF('${emp.id}')">
                             <span>📄</span> Download PDF
                         </button>
@@ -1362,6 +1634,121 @@
             };
 
             await html2pdf().set(opt).from(element).save();
+        }
+
+        // Show Individual Preview Modal
+        function showIndividualPreview(empId) {
+            const emp = employees.find(e => e.id === empId);
+            const month = document.getElementById('month');
+            const year = document.getElementById('year').value;
+            const monthName = month.options[month.selectedIndex].text;
+            const score = document.getElementById(`score-${empId}`).textContent;
+            const feedback = document.getElementById(`feedback-${empId}`).value || 'Tidak ada catatan.';
+            const targets = getTargets();
+
+            const vals = {
+                prospekRetensi: document.getElementById(`prospekRetensi-${empId}`).value || '-',
+                closingRetensi: document.getElementById(`closingRetensi-${empId}`).value || '-',
+                retensi: document.getElementById(`retensi-${empId}`).value || '-',
+                perpanjangan: document.getElementById(`perpanjangan-${empId}`).value || '-',
+                kepuasan: document.getElementById(`kepuasan-${empId}`).value || '-',
+                complain: document.getElementById(`complain-${empId}`).value || '-',
+                akurasi: document.getElementById(`akurasi-${empId}`).value || '-',
+                bonus: document.getElementById(`bonus-${empId}`).value || '-',
+                tools: document.getElementById(`tools-${empId}`).value || '-',
+                kolaborasi: document.getElementById(`kolaborasi-${empId}`).value || '-'
+            };
+
+            const scoreNum = parseInt(score);
+            let grade, gradeColor;
+            if (scoreNum >= 90) { grade = 'A'; gradeColor = '#4CAF50'; }
+            else if (scoreNum >= 75) { grade = 'B'; gradeColor = '#2196F3'; }
+            else if (scoreNum >= 60) { grade = 'C'; gradeColor = '#FF9800'; }
+            else { grade = 'D'; gradeColor = '#F44336'; }
+
+            const modalContent = document.getElementById('modalPreviewContent');
+            modalContent.innerHTML = `
+                <div class="individual-preview">
+                    <div class="individual-preview-header">
+                        <div>
+                            <h2 style="font-family: 'Playfair Display', serif; color: var(--gold-primary); margin: 0; font-size: 20px;">Golden English Bekasi</h2>
+                            <p style="color: var(--gray-light); margin: 5px 0 0 0; font-size: 11px;">KPI Report - After Sales</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-family: 'Playfair Display', serif; font-size: 18px;">${monthName}</div>
+                            <div style="color: var(--gray-light); font-size: 12px;">${year}</div>
+                        </div>
+                    </div>
+
+                    <div class="individual-preview-employee">
+                        <div class="individual-preview-avatar">${emp.initials}</div>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 600;">${emp.name}</div>
+                            <div style="font-size: 10px; color: var(--gray-light); text-transform: uppercase; letter-spacing: 1px;">After Sales Staff</div>
+                        </div>
+                        <div class="individual-preview-score">
+                            <div class="value">${score}</div>
+                            <div class="label">Total Score</div>
+                        </div>
+                    </div>
+
+                    <table class="individual-preview-table">
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>KPI</th>
+                                <th>Nilai</th>
+                                <th>Target</th>
+                                <th>Bobot</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td rowspan="4">Financial</td><td>Prospek Retensi</td><td>${vals.prospekRetensi}</td><td>-</td><td>Data</td></tr>
+                            <tr><td>Closing Retensi</td><td>${vals.closingRetensi}</td><td>-</td><td>Data</td></tr>
+                            <tr><td>Retensi Murid</td><td>${vals.retensi}%</td><td>${targets.retensi.target}%</td><td>30%</td></tr>
+                            <tr><td>Perpanjangan</td><td>${vals.perpanjangan} orang</td><td>${targets.perpanjangan.target}</td><td>15%</td></tr>
+                            <tr><td rowspan="2">Customer</td><td>Kepuasan Murid</td><td>${vals.kepuasan}/5</td><td>${targets.kepuasan.target}/5</td><td>15%</td></tr>
+                            <tr><td>Complain Terselesaikan</td><td>${vals.complain}%</td><td>${targets.complain.target}%</td><td>15%</td></tr>
+                            <tr><td rowspan="2">Internal Process</td><td>Kesalahan Data</td><td>${vals.akurasi}</td><td>Max ${targets.akurasi.target}</td><td>10%</td></tr>
+                            <tr><td>Fasilitas Bonus</td><td>${vals.bonus}%</td><td>${targets.bonus.target}%</td><td>5%</td></tr>
+                            <tr><td rowspan="2">Learning & Growth</td><td>Pemahaman Tools</td><td>${vals.tools}%</td><td>${targets.tools.target}%</td><td>5%</td></tr>
+                            <tr><td>Kolaborasi</td><td>${vals.kolaborasi}%</td><td>${targets.kolaborasi.target}%</td><td>5%</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="individual-preview-feedback">
+                        <h4>Feedback & Catatan</h4>
+                        <p>${feedback}</p>
+                    </div>
+
+                    <div class="individual-preview-grade">
+                        <div class="grade-display">
+                            <div class="label">Grade</div>
+                            <div class="value" style="color: ${gradeColor};">${grade}</div>
+                        </div>
+                        <div class="individual-preview-insight">
+                            <h4>Insight</h4>
+                            <div class="author">by M Rafli Febriansyah</div>
+                            <p>${generateIndividualInsight(emp.name, scoreNum, vals, targets)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Set download button action
+            document.getElementById('modalDownloadBtn').onclick = () => {
+                exportIndividualPDF(empId);
+                closePreviewModal();
+            };
+
+            // Show modal
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        // Close Preview Modal
+        function closePreviewModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('previewModal').classList.remove('active');
         }
 
         // Export Individual PDF
