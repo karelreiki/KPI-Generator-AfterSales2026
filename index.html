@@ -1434,71 +1434,79 @@
         }
         // Export Full PDF (Recap Semua Report)
         async function exportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'landscape',
-                unit: 'mm',
-                format: 'a4'
-            });
+            console.log('Starting full PDF export...');
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                const element = document.getElementById('pdfContent');
+                console.log('Element found:', element);
+                element.style.width = '1122px'; // A4 landscape in px (297mm * 3.78 px/mm approx)
+                element.style.height = 'auto';
+                element.style.backgroundColor = '#0D0D0D';
 
-            const element = document.getElementById('pdfContent');
-            element.style.width = '297mm'; // A4 landscape width
-            element.style.height = 'auto'; // Allow height to expand
-            element.style.backgroundColor = '#0D0D0D'; // Explicit background
+                // Handle chart
+                const chartCanvas = document.getElementById('performanceChart');
+                const chartImage = chartCanvas.toDataURL('image/png', 1.0);
+                console.log('Chart image created');
+                const chartContainer = document.querySelector('.pdf-chart-container');
+                const tempImg = document.createElement('img');
+                tempImg.src = chartImage;
+                tempImg.style.width = '100%';
+                tempImg.style.height = 'auto';
+                chartContainer.replaceChild(tempImg, chartCanvas);
 
-            // Render canvas (chart) to image first to avoid blank
-            const chartCanvas = document.getElementById('performanceChart');
-            const chartImage = chartCanvas.toDataURL('image/png');
+                // Render with html2canvas
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0D0D0D',
+                    windowWidth: element.scrollWidth,
+                    windowHeight: element.scrollHeight,
+                    logging: true,
+                    allowTaint: true,
+                    taintTest: false // Tambah ini untuk avoid black screen
+                });
+                console.log('Canvas created, size:', canvas.width, 'x', canvas.height);
 
-            // Replace chart with image for PDF
-            const chartContainer = document.querySelector('.pdf-chart-container');
-            const tempImg = document.createElement('img');
-            tempImg.src = chartImage;
-            tempImg.style.width = '100%';
-            tempImg.style.height = 'auto';
-            chartContainer.replaceChild(tempImg, chartCanvas);
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgWidth = 297;
+                const pageHeight = 210;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
 
-            // Use html2canvas with higher scale and explicit background
-            const canvas = await html2canvas(element, {
-                scale: 3, // Tingkatkan scale untuk kualitas lebih baik
-                useCORS: true,
-                backgroundColor: '#0D0D0D', // Prevent black screen
-                windowWidth: 297 * 3.78, // Approximate A4 landscape in pixels
-                logging: false,
-                allowTaint: true
-            });
-
-            const imgData = canvas.toDataURL('image/jpeg', 0.98);
-            const imgWidth = 297; // A4 landscape width mm
-            const pageHeight = 210; // A4 landscape height mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            // Add first page
-            doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            // Add additional pages if content overflows
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight;
-                doc.addPage();
-                doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
                 heightLeft -= pageHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+                    heightLeft -= pageHeight;
+                }
+
+                const month = document.getElementById('month');
+                const year = document.getElementById('year').value;
+                const monthName = month.options[month.selectedIndex].text;
+                doc.save(`KPI_AfterSales_Bekasi_${monthName}_${year}.pdf`);
+                console.log('PDF saved');
+
+                // Restore
+                chartContainer.replaceChild(chartCanvas, tempImg);
+                element.style.width = '';
+                element.style.height = '';
+            } catch (error) {
+                console.error('Error in exportPDF:', error);
+                alert('Terjadi error saat export PDF. Check console (F12) untuk detail.');
             }
-
-            const month = document.getElementById('month');
-            const year = document.getElementById('year').value;
-            const monthName = month.options[month.selectedIndex].text;
-            doc.save(`KPI_AfterSales_Bekasi_${monthName}_${year}.pdf`);
-
-            // Restore chart
-            chartContainer.replaceChild(chartCanvas, tempImg);
-            element.style.width = ''; // Reset style
-            element.style.height = '';
         }
         // Show Individual Preview Modal
         function showIndividualPreview(empId) {
+            console.log('Showing preview for', empId);
             const emp = employees.find(e => e.id === empId);
             const month = document.getElementById('month');
             const year = document.getElementById('year').value;
@@ -1514,7 +1522,7 @@
                 kepuasan: document.getElementById(`kepuasan-${empId}`).value || '-',
                 complain: document.getElementById(`complain-${empId}`).value || '-',
                 akurasi: document.getElementById(`akurasi-${empId}`).value || '-',
-                bonus: document.getElementById(`bonus-${empId}`).value || '-',
+                bonus: document.getElementById(`bonus-${emp.id}`).value || '-',
                 tools: document.getElementById(`tools-${empId}`).value || '-',
                 kolaborasi: document.getElementById(`kolaborasi-${empId}`).value || '-'
             };
@@ -1532,7 +1540,7 @@
                             <h2 style="font-family: 'Playfair Display', serif; color: var(--gold-primary); margin: 0; font-size: 20px;">Golden English Bekasi</h2>
                             <p style="color: var(--gray-light); margin: 5px 0 0 0; font-size: 11px;">KPI Report - After Sales</p>
                         </div>
-                        <div>
+                        <div style="text-align: right;">
                             <div style="font-family: 'Playfair Display', serif; font-size: 18px;">${monthName}</div>
                             <div style="color: var(--gray-light); font-size: 12px;">${year}</div>
                         </div>
@@ -1603,45 +1611,50 @@
         }
         // Export Individual PDF
         async function exportIndividualPDF(empId) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: 'portrait',
-                unit: 'pt',
-                format: 'a4'
-            });
-            const emp = employees.find(e => e.id === empId);
-            const month = document.getElementById('month');
-            const year = document.getElementById('year').value;
-            const monthName = month.options[month.selectedIndex].text;
-            const score = document.getElementById(`score-${empId}`).textContent;
-            const feedback = document.getElementById(`feedback-${empId}`).value || 'Tidak ada catatan.';
-            const targets = getTargets();
-            const vals = {
-                prospekRetensi: document.getElementById(`prospekRetensi-${empId}`).value || '-',
-                closingRetensi: document.getElementById(`closingRetensi-${empId}`).value || '-',
-                retensi: document.getElementById(`retensi-${empId}`).value || '-',
-                perpanjangan: document.getElementById(`perpanjangan-${empId}`).value || '-',
-                kepuasan: document.getElementById(`kepuasan-${empId}`).value || '-',
-                complain: document.getElementById(`complain-${empId}`).value || '-',
-                akurasi: document.getElementById(`akurasi-${empId}`).value || '-',
-                bonus: document.getElementById(`bonus-${empId}`).value || '-',
-                tools: document.getElementById(`tools-${empId}`).value || '-',
-                kolaborasi: document.getElementById(`kolaborasi-${empId}`).value || '-'
-            };
-            const scoreNum = parseInt(score);
-            let grade, gradeColor;
-            if (scoreNum >= 90) { grade = 'A'; gradeColor = '#4CAF50'; }
-            else if (scoreNum >= 75) { grade = 'B'; gradeColor = '#2196F3'; }
-            else if (scoreNum >= 60) { grade = 'C'; gradeColor = '#FF9800'; }
-            else { grade = 'D'; gradeColor = '#F44336'; }
+            console.log('Starting individual PDF export for', empId);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'pt',
+                    format: 'a4'
+                });
+                const emp = employees.find(e => e.id === empId);
+                const month = document.getElementById('month');
+                const year = document.getElementById('year').value;
+                const monthName = month.options[month.selectedIndex].text;
+                const score = document.getElementById(`score-${empId}`).textContent;
+                const feedback = document.getElementById(`feedback-${empId}`).value || 'Tidak ada catatan.';
+                const targets = getTargets();
+                const vals = {
+                    prospekRetensi: document.getElementById(`prospekRetensi-${empId}`).value || '-',
+                    closingRetensi: document.getElementById(`closingRetensi-${empId}`).value || '-',
+                    retensi: document.getElementById(`retensi-${empId}`).value || '-',
+                    perpanjangan: document.getElementById(`perpanjangan-${empId}`).value || '-',
+                    kepuasan: document.getElementById(`kepuasan-${empId}`).value || '-',
+                    complain: document.getElementById(`complain-${empId}`).value || '-',
+                    akurasi: document.getElementById(`akurasi-${empId}`).value || '-',
+                    bonus: document.getElementById(`bonus-${empId}`).value || '-',
+                    tools: document.getElementById(`tools-${empId}`).value || '-',
+                    kolaborasi: document.getElementById(`kolaborasi-${empId}`).value || '-'
+                };
+                const scoreNum = parseInt(score);
+                let grade, gradeColor;
+                if (scoreNum >= 90) { grade = 'A'; gradeColor = '#4CAF50'; }
+                else if (scoreNum >= 75) { grade = 'B'; gradeColor = '#2196F3'; }
+                else if (scoreNum >= 60) { grade = 'C'; gradeColor = '#FF9800'; }
+                else { grade = 'D'; gradeColor = '#F44336'; }
 
-            // Create temporary element for rendering
-            const tempElement = document.createElement('div');
-            tempElement.style.width = '595pt'; // A4 portrait width
-            tempElement.style.height = 'auto';
-            tempElement.style.backgroundColor = '#0D0D0D';
-            tempElement.innerHTML = `
-                <div style="padding: 20pt; color: #fff; font-family: 'Montserrat', sans-serif; line-height: 1.6;">
+                // Create temporary element for rendering
+                const tempElement = document.createElement('div');
+                tempElement.style.width = '595pt'; // A4 portrait width
+                tempElement.style.height = 'auto';
+                tempElement.style.backgroundColor = '#0D0D0D';
+                tempElement.style.padding = '20pt';
+                tempElement.style.color = '#fff';
+                tempElement.style.fontFamily = "'Montserrat', sans-serif";
+                tempElement.style.lineHeight = '1.6';
+                tempElement.innerHTML = `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2pt solid #D4AF37; padding-bottom: 15pt; margin-bottom: 15pt;">
                         <div>
                             <h2 style="font-family: 'Playfair Display', serif; color: #D4AF37; margin: 0; font-size: 18pt;">Golden English Bekasi</h2>
@@ -1653,7 +1666,7 @@
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 12pt; background: #1A1A1A; padding: 12pt 15pt; border-radius: 8pt; margin-bottom: 15pt;">
-                        <div class="individual-preview-avatar" style="width: 40pt; height: 40pt; background: linear-gradient(135deg, #D4AF37, #A68B28); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16pt; font-weight: 700; color: #0D0D0D;">${emp.initials}</div>
+                        <div style="width: 40pt; height: 40pt; background: linear-gradient(135deg, #D4AF37, #A68B28); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16pt; font-weight: 700; color: #0D0D0D;">${emp.initials}</div>
                         <div>
                             <div style="font-size: 14pt; font-weight: 600; color: #fff;">${emp.name}</div>
                             <div style="font-size: 9pt; color: #8A8A8A; text-transform: uppercase; letter-spacing: 1pt;">After Sales Staff</div>
@@ -1701,38 +1714,44 @@
                         <div style="font-size: 8pt; opacity: 0.7; margin-bottom: 8pt;">by M Rafli Febriansyah</div>
                         <div style="font-size: 10pt; line-height: 1.6;">${generateIndividualInsight(emp.name, scoreNum, vals, targets)}</div>
                     </div>
-                </div>
-            `;
+                `;
 
-            // Render to canvas
-            const canvas = await html2canvas(tempElement, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#0D0D0D',
-                logging: false,
-                allowTaint: true
-            });
+                document.body.appendChild(tempElement); // Append to body for rendering
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.98);
-            const imgWidth = 595; // A4 portrait width pt
-            const pageHeight = 842; // A4 portrait height pt
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
+                const canvas = await html2canvas(tempElement, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0D0D0D',
+                    logging: true,
+                    allowTaint: true,
+                    taintTest: false
+                });
+                console.log('Individual canvas created');
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                const imgWidth = 595;
+                const pageHeight = 842;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
 
-            // Add first page
-            doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-            heightLeft -= pageHeight;
-
-            // Add additional pages if needed
-            while (heightLeft > 0) {
-                position = heightLeft - imgHeight;
-                doc.addPage();
                 doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
                 heightLeft -= pageHeight;
-            }
 
-            doc.save(`KPI_${emp.name.replace(/\s/g, '_')}_${monthName}_${year}.pdf`);
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+                    heightLeft -= pageHeight;
+                }
+
+                doc.save(`KPI_${emp.name.replace(/\s/g, '_')}_${monthName}_${year}.pdf`);
+                console.log('Individual PDF saved');
+
+                document.body.removeChild(tempElement); // Clean up
+            } catch (error) {
+                console.error('Error in exportIndividualPDF:', error);
+                alert('Terjadi error saat export PDF individual. Check console (F12) untuk detail.');
+            }
         }
         // Generate Individual Insight
         function generateIndividualInsight(name, score, vals, targets) {
